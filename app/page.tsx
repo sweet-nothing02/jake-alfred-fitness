@@ -1,103 +1,206 @@
+// app/page.tsx
+"use client"; // Required for animations
+
+import { useEffect, useState } from "react";
+import { client } from "@sanity/lib/sanity";
+import { groq } from "next-sanity";
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+const TYPING_TEXTS = [
+  "Hi, I'm Jake Alfred",
+  "I help men get jacked",
+  "I build confidence",
+  "I transform physiques",
+];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+export default function Home() {
+  const [typingText, setTypingText] = useState("");
+  const [textIndex, setTextIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+
+  // Fetch testimonials
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      const data = await client.fetch(groq`*[_type == "testimonial"]{
+        _id,
+        clientName,
+        feedback,
+        "imageUrl": clientImage.asset->url
+      }`);
+      setTestimonials(data);
+    };
+    fetchTestimonials();
+  }, []);
+
+  // Typing animation
+  useEffect(() => {
+    const currentText = TYPING_TEXTS[textIndex % TYPING_TEXTS.length];
+    const speed = isDeleting ? 50 : 100;
+
+    if (!isDeleting && typingText === currentText) {
+      setTimeout(() => setIsDeleting(true), 2000);
+    } else if (isDeleting && typingText === "") {
+      setIsDeleting(false);
+      setTextIndex(textIndex + 1);
+    } else {
+      const timeout = setTimeout(() => {
+        setTypingText(
+          isDeleting
+            ? currentText.substring(0, typingText.length - 1)
+            : currentText.substring(0, typingText.length + 1)
+        );
+      }, speed);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [typingText, textIndex, isDeleting]);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-800 text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <Image
+            src="/gym-bg.webp"
+            alt="Gym background"
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="relative z-10 text-center px-4">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 h-20">
+            <span className="text-yellow-400">{typingText}</span>
+            <span className="animate-pulse">|</span>
+          </h1>
+
+          <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
+            Certified fitness coach specializing in physique transformation and
+            confidence building
+          </p>
+
+          <div className="flex gap-4 justify-center">
+            <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-8 rounded-full transition-all transform hover:scale-105">
+              Book Consultation
+            </button>
+            <button className="border-2 border-white hover:bg-white hover:text-black font-bold py-3 px-8 rounded-full transition-all">
+              My Programs
+            </button>
+          </div>
+        </div>
+
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <svg
+            className="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-20 px-4 max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-12 items-center">
+          <div className="md:w-1/2">
+            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl">
+              <Image
+                src="/coach.jpg"
+                alt="Jake Alfred"
+                fill
+                className="object-cover"
+              />
+            </div>
+          </div>
+          <div className="md:w-1/2">
+            <h2 className="text-4xl font-bold mb-6">My Philosophy</h2>
+            <p className="text-lg mb-6">
+              With over 5 years of coaching experience, I've developed a proven
+              system that combines science-based training with psychological
+              techniques to help men achieve their dream physiques.
+            </p>
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-center">
+                <span className="bg-yellow-500 rounded-full p-1 mr-3">
+                  <svg
+                    className="w-4 h-4 text-black"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </span>
+                Personalized training programs
+              </li>
+              {/* Add more list items */}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gray-100">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-12">
+            Success Stories
+          </h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial) => (
+              <div
+                key={testimonial._id}
+                className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow"
+              >
+                <div className="flex items-center mb-4">
+                  {testimonial.imageUrl && (
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4">
+                      <Image
+                        src={testimonial.imageUrl}
+                        alt={testimonial.clientName}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <h3 className="font-bold text-lg">
+                    {testimonial.clientName}
+                  </h3>
+                </div>
+                <p className="text-gray-600 italic">"{testimonial.feedback}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-900 to-indigo-800 text-white text-center">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-4xl font-bold mb-6">Ready to Transform?</h2>
+          <p className="text-xl mb-8">
+            Join my 12-week transformation program and become the best version
+            of yourself
+          </p>
+          <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-12 rounded-full text-lg transition-all transform hover:scale-105">
+            Start Your Journey Today
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

@@ -17,5 +17,12 @@ export default defineType({
       title: 'Feedback',
       type: 'text',
     }),
+    defineField(
+      {
+        name: 'clientImage',
+        title: 'Client Image',
+        type: 'image',
+        options: { hotspot: true }
+      }),
   ],
 })

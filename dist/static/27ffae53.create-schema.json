@@ -1,0 +1,27 @@
+[
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "clientName",
+        "type": "string"
+      },
+      {
+        "name": "feedback",
+        "type": "text"
+      }
+    ],
+    "name": "testimonial",
+    "type": "document"
+  }
+]
